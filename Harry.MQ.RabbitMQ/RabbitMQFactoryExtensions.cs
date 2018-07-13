@@ -1,0 +1,23 @@
+﻿using Harry.MQ.RabbitMQ;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Harry.MQ
+{
+    public static class RabbitMQFactoryExtensions
+    {
+        public static IMQFactory AddRabbitMQ(this IMQFactory factory, Action<RabbitMQOptions> action)
+        {
+            RabbitMQOptions options = new RabbitMQOptions();
+            action?.Invoke(options);
+            factory.AddProvider(new RabbitMQProvider(options));
+            return factory;
+        }
+
+        public static IMQFactory AddRabbitMQ(this IMQFactory factory)
+        {
+            return AddRabbitMQ(factory, null);
+        }
+    }
+}
