@@ -11,7 +11,7 @@ namespace Harry.MQ
 
         public IProducer CreateProducer(string channel)
         {
-            if (_disposed)
+            if (CheckDisposed())
             {
                 throw new ObjectDisposedException(nameof(MQFactory));
             }
@@ -28,7 +28,7 @@ namespace Harry.MQ
 
         public IConsumer CreateConsumer(string channel)
         {
-            if (_disposed)
+            if (CheckDisposed())
             {
                 throw new ObjectDisposedException(nameof(MQFactory));
             }
@@ -45,7 +45,7 @@ namespace Harry.MQ
 
         public IMQFactory AddProvider(IMQProvider provider)
         {
-            if (_disposed)
+            if (CheckDisposed())
             {
                 throw new ObjectDisposedException(nameof(MQFactory));
             }
@@ -57,23 +57,27 @@ namespace Harry.MQ
             return this;
         }
 
+        protected virtual bool CheckDisposed() => _disposed;
+
         public void Dispose()
         {
-            if (!_disposed)
+            if (_disposed)
             {
-                _disposed = true;
+                return;
+            }
+            _disposed = true;
 
-                foreach (var provider in _lstProviders)
+            foreach (var provider in _lstProviders)
+            {
+                try
                 {
-                    try
-                    {
-                        provider.Dispose();
-                    }
-                    catch
-                    {
-                    }
+                    provider.Dispose();
+                }
+                catch
+                {
                 }
             }
+
         }
     }
 }

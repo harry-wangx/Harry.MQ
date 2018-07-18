@@ -9,9 +9,9 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MQServiceCollectionExtensions
     {
-        public static IServiceCollection AddMQ(this IServiceCollection services,Action<IMQFactory> factoryAction)
+        public static IServiceCollection AddMQ(this IServiceCollection services, Action<IMQFactory> factoryAction)
         {
-            services.TryAddSingleton(s =>
+            services.TryAddSingleton(_ =>
             {
                 IMQFactory factory = new MQFactory();
                 factoryAction?.Invoke(factory);
