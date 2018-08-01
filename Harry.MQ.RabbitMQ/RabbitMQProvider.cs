@@ -84,7 +84,6 @@ namespace Harry.MQ.RabbitMQ
                     factory = func.Invoke((ConnectionFactory)factory);
                 }
             }
-
         }
 
         private void EnsureConnection()
@@ -112,7 +111,7 @@ namespace Harry.MQ.RabbitMQ
             }
         }
 
-        private IModel GetAndInitChannel(string channelName)
+        public virtual IModel GetAndInitChannel(string channelName)
         {
             if (string.IsNullOrWhiteSpace(channelName))
             {
@@ -126,7 +125,7 @@ namespace Harry.MQ.RabbitMQ
             var channel = connection.CreateModel();
 
             channel.QueueDeclare(queue: channelName,
-                     durable: false,
+                     durable: true,
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);

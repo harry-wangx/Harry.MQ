@@ -12,7 +12,7 @@ namespace Harry.MQ
         /// <summary>
         /// 接收到消息事件
         /// </summary>
-        event EventHandler<ReceiveMessage> Received;
+        event EventHandler<ReceiveArgs> Received;
 
         /// <summary>
         /// 开始接收消息
@@ -23,6 +23,6 @@ namespace Harry.MQ
         /// <summary>
         /// 发送回执
         /// </summary>
-        void Ack(ReceiveMessage message);
+        void Ack(ReceiveArgs args);
     }
 }

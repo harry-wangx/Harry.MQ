@@ -13,5 +13,15 @@ namespace Harry.MQ
         /// 消息内容
         /// </summary>
         public byte[] Body { get; set; }
+
+        public override string ToString()
+        {
+            return this.GetString();
+        }
+
+        public string ToString(Encoding encoding)
+        {
+            return this.GetString(encoding);
+        }
     }
 }

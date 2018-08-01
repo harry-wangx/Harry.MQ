@@ -14,7 +14,7 @@ namespace Harry.MQ.RabbitMQ
         private readonly RabbitMQOptions options;
         private readonly string channelName;
 
-        public event EventHandler<ReceiveMessage> Received;
+        public event EventHandler<ReceiveArgs> Received;
 
         public RabbitMQConsumer(IModel channel, string channelName, RabbitMQOptions options)
         {
@@ -30,29 +30,38 @@ namespace Harry.MQ.RabbitMQ
         {
             if (_disposed) return;
 
-            ReceiveMessage message = new ReceiveMessage(this, sender, e)
+            Message message = new Message()
             {
                 Body = e.Body
             };
-            Received?.Invoke(this, message);
+            Received?.Invoke(this, new ReceiveArgs(sender, e, message));
         }
 
         public void Begin(bool autoAck)
         {
+#if NET451 || COREFX
             channel.BasicConsume(queue: channelName,
-                                 autoAck: autoAck,
-                                 consumer: consumer);
+                     autoAck: autoAck,
+                     consumer: consumer);
+#elif NET45
+            channel.BasicConsume(channelName, autoAck, consumer);
+#else
+            //防止有新增加的.net版本，且未正确实现当前方法
+            //throw new NotImplementedException();
+            throw
+#endif
         }
 
-        public void Ack(ReceiveMessage message)
+        public void Ack(ReceiveArgs args)
         {
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
+            if (args == null)
+                throw new ArgumentNullException(nameof(args));
 
-            BasicDeliverEventArgs e = message.OriginArgs as BasicDeliverEventArgs;
+            BasicDeliverEventArgs e = args.OriginArgs as BasicDeliverEventArgs;
             if (e == null)
-                throw new ArgumentNullException(nameof(message.OriginArgs));
-            channel.BasicAck(e.DeliveryTag,false);
+                throw new ArgumentNullException(nameof(args.OriginArgs));
+
+            channel.BasicAck(e.DeliveryTag, false);
         }
 
         public void Dispose()

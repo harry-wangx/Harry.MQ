@@ -11,7 +11,7 @@ namespace Harry.MQ
             if (producer == null)
                 throw new ArgumentNullException(nameof(producer));
 
-            if (string.IsNullOrWhiteSpace(msg))
+            if (string.IsNullOrEmpty(msg))
                 return producer;
 
             return producer.Publish(msg, MQDefaults.DefaultEncoding);
@@ -22,7 +22,7 @@ namespace Harry.MQ
             if (producer == null)
                 throw new ArgumentNullException(nameof(producer));
 
-            if (string.IsNullOrWhiteSpace(msg))
+            if (string.IsNullOrEmpty(msg))
                 return producer;
 
             encoding = encoding ?? MQDefaults.DefaultEncoding;

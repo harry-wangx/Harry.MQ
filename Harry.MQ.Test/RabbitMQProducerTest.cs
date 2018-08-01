@@ -15,7 +15,5 @@ namespace Harry.MQ.Test
             producer.Publish("hello:" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             Assert.True(true);
         }
-
-
     }
 }

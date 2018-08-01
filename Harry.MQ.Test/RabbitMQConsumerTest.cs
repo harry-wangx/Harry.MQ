@@ -28,11 +28,11 @@ namespace Harry.MQ.Test
         }
 
         int count = 0;
-        private void Channel_Received(object sender, ReceiveMessage e)
+        private void Channel_Received(object sender, ReceiveArgs e)
         {
-            outputHelper.WriteLine($"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}】【{count++}】{e.GetString()}" );
+            outputHelper.WriteLine($"【{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}】【{count++}】{e.Message.GetString()}");
             Thread.Sleep(100);
-            e.Sender.Ack(e);
+            ((IConsumer)sender).Ack(e);
         }
 
     }

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net451</TargetFrameworks>
-    <Version>1.0.0-alpha1</Version>
+    <TargetFrameworks>netstandard2.0;net451;net45</TargetFrameworks>
+    <Version>1.0.0-alpha2</Version>
     <Authors>Harry</Authors>
   </PropertyGroup>
 
@@ -10,8 +10,16 @@
     <DefineConstants>$(DefineConstants);COREFX</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net451'">
+    <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="RabbitMQ.Client" Version="3.6.9" />
   </ItemGroup>
 
   <ItemGroup>

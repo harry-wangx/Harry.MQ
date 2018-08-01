@@ -12,7 +12,7 @@ namespace Harry.MQ.RabbitMQ
         private readonly string channelName;
         private readonly RabbitMQOptions options;
 
-        public RabbitMQProducer(IModel channel,string channelName, RabbitMQOptions options)
+        public RabbitMQProducer(IModel channel, string channelName, RabbitMQOptions options)
         {
             this.channel = channel;
             this.channelName = channelName;
@@ -26,9 +26,9 @@ namespace Harry.MQ.RabbitMQ
                 throw new ObjectDisposedException(nameof(RabbitMQProducer));
             }
 
-            channel.BasicPublish(exchange: "",
+            channel.BasicPublish(exchange: options.Exchange,
                                  routingKey: channelName,
-                                 basicProperties: null,
+                                 basicProperties: options.BasicProperties,
                                  body: msg.Body);
         }
 

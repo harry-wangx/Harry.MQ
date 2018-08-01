@@ -9,6 +9,9 @@ namespace Harry.MQ
     {
         public static IMQFactory AddRabbitMQ(this IMQFactory factory, Action<RabbitMQOptions> action)
         {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
             RabbitMQOptions options = new RabbitMQOptions();
             action?.Invoke(options);
             factory.AddProvider(new RabbitMQProvider(options));
