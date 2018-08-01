@@ -26,9 +26,9 @@ namespace Harry.MQ.RabbitMQ
                 throw new ObjectDisposedException(nameof(RabbitMQProducer));
             }
 
-            channel.BasicPublish(exchange: options.Exchange,
+            channel.BasicPublish(exchange: options?.Exchange?.Name ?? "",
                                  routingKey: channelName,
-                                 basicProperties: options.BasicProperties,
+                                 basicProperties: options?.Exchange?.BasicProperties,
                                  body: msg.Body);
         }
 

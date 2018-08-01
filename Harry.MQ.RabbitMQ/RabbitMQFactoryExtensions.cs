@@ -14,6 +14,9 @@ namespace Harry.MQ
 
             RabbitMQOptions options = new RabbitMQOptions();
             action?.Invoke(options);
+
+            options.QueueDeclare = options.QueueDeclare ?? new RabbitMQOptions.QueueDeclareOptions();
+
             factory.AddProvider(new RabbitMQProvider(options));
             return factory;
         }

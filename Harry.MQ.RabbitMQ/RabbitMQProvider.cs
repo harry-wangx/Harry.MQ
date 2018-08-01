@@ -78,7 +78,7 @@ namespace Harry.MQ.RabbitMQ
                     return;
                 }
                 factory = new ConnectionFactory() { HostName = "localhost" };
-                var func = _options?.OnCreateConnectionFactory;
+                var func = _options?.Events?.OnCreateConnectionFactory;
                 if (func != null)
                 {
                     factory = func.Invoke((ConnectionFactory)factory);
@@ -102,7 +102,7 @@ namespace Harry.MQ.RabbitMQ
                 connection?.Dispose();
                 connection = null;
 
-                connection = _options.OnCreateConnection?.Invoke(factory);
+                connection = _options?.Events?.OnCreateConnection?.Invoke(factory);
 
                 if (connection == null)
                 {
@@ -118,17 +118,17 @@ namespace Harry.MQ.RabbitMQ
                 channelName = MQDefaults.DefaultChannelName;
             }
 
-            var canCreate = _options.ChannelFilter?.Invoke(channelName);
+            var canCreate = _options?.Events?.ChannelFilter?.Invoke(channelName);
             if (canCreate == false)
                 return null;
 
             var channel = connection.CreateModel();
 
             channel.QueueDeclare(queue: channelName,
-                     durable: true,
-                     exclusive: false,
-                     autoDelete: false,
-                     arguments: null);
+                     durable: _options.QueueDeclare.Durable,
+                     exclusive: _options.QueueDeclare.Exclusive,
+                     autoDelete: _options.QueueDeclare.AutoDelete,
+                     arguments: _options.QueueDeclare.Arguments);
             return channel;
         }
 
