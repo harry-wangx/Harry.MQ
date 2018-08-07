@@ -17,11 +17,11 @@ namespace Harry.MQ
         /// <summary>
         /// 开始接收消息
         /// </summary>
-        /// <param name="autoAck">是否自动发送回执</param>
+        /// <param name="autoAck">是否自动发送回执(广播模式下此参数不起作用)</param>
         void Begin(bool autoAck);
 
         /// <summary>
-        /// 发送回执
+        /// 发送回执（广播模式下此方法不执行任何操作）
         /// </summary>
         void Ack(ReceiveArgs args);
     }

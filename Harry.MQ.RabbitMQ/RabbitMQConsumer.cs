@@ -27,7 +27,7 @@ namespace Harry.MQ.RabbitMQ
             consumer = new EventingBasicConsumer(channel);
             consumer.Received += OnReceived;
 
-            
+
             if (isBroadcast)
             {
                 queueName = channel.QueueDeclare(queue: "",
@@ -67,12 +67,13 @@ namespace Harry.MQ.RabbitMQ
             //每次只向一个消费者发送一个消息
             channel.BasicQos(0, 1, false);
 
+            //广播模式下不需要发送回执
 #if NET451 || COREFX
             channel.BasicConsume(queue: queueName,
-                     autoAck: autoAck,
+                     autoAck: isBroadcast ? true : autoAck,
                      consumer: consumer);
 #elif NET45
-            channel.BasicConsume(queueName, autoAck, consumer);
+            channel.BasicConsume(queueName, (isBroadcast ? true : autoAck), consumer);
 #else
             //防止有新增加的.net版本，且未正确实现当前方法
             //throw new NotImplementedException();
@@ -82,6 +83,9 @@ namespace Harry.MQ.RabbitMQ
 
         public void Ack(ReceiveArgs args)
         {
+            //广播模式下不需要发送回执
+            if (isBroadcast) return;
+
             if (args == null)
                 throw new ArgumentNullException(nameof(args));
 
