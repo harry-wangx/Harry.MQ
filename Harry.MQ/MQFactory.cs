@@ -9,39 +9,66 @@ namespace Harry.MQ
         private readonly List<IMQProvider> _lstProviders = new List<IMQProvider>();
         private volatile bool _disposed;
 
-        public IProducer CreateProducer(string channel)
+        #region 创建消息发布者
+
+        //public IProducer CreateProducer(string channelName)
+        //{
+        //    return this.CreateProducer(channelName, false);
+        //}
+
+        public IProducer CreateProducer(string channelName, bool isBroadcast)
         {
             if (CheckDisposed())
             {
                 throw new ObjectDisposedException(nameof(MQFactory));
             }
+
+            channelName = channelName?.Trim();
+
+            if (string.IsNullOrEmpty(channelName))
+                throw new ArgumentNullException(nameof(channelName));
 
             IProducer result = null;
             foreach (var provider in _lstProviders)
             {
-                result = provider.CreateProducer(channel);
+                result = provider.CreateProducer(channelName,isBroadcast);
                 if (result != null)
                     return result;
             }
             return null;
         }
 
-        public IConsumer CreateConsumer(string channel)
+        #endregion
+
+        #region 创建消息消费者
+        //public IConsumer CreateConsumer(string channelName)
+        //{
+        //    return this.CreateConsumer(channelName, false);
+        //}
+
+        public IConsumer CreateConsumer(string channelName, bool isBroadcast)
         {
             if (CheckDisposed())
             {
                 throw new ObjectDisposedException(nameof(MQFactory));
             }
 
+            channelName = channelName?.Trim();
+
+            if (string.IsNullOrEmpty(channelName))
+                throw new ArgumentNullException(nameof(channelName));
+
             IConsumer result = null;
             foreach (var provider in _lstProviders)
             {
-                result = provider.CreateConsumer(channel);
+                result = provider.CreateConsumer(channelName, isBroadcast);
                 if (result != null)
                     return result;
             }
             return null;
         }
+
+        #endregion
 
         public IMQFactory AddProvider(IMQProvider provider)
         {
@@ -79,5 +106,6 @@ namespace Harry.MQ
             }
 
         }
+
     }
 }

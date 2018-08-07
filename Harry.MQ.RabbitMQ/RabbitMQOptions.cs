@@ -50,23 +50,31 @@ namespace Harry.MQ.RabbitMQ
             /// 通道过滤器，是否支持当前通道名称,如果支持，返回true
             /// </summary>
             public Func<string, bool> ChannelFilter { get; set; } = _ => true;
+
+            /// <summary>
+            /// 设置通道属性
+            /// </summary>
+            public Action<IBasicProperties> OnSetBasicProperties { get; set; }
+
         }
 
         public class ExchangeOptions
         {
-            /// <summary>
-            /// Exchange名称
-            /// </summary>
-            public string Name { get; set; } = "";
+            ///// <summary>
+            ///// Exchange名称
+            ///// </summary>
+            //public string Name { get; set; } = "";
 
-            public IBasicProperties BasicProperties { get; set; } =
-                new BasicProperties()
-                {
-                    //消息类型
-                    ContentType = "text/plain",
-                    //1:nonpersistent 2:persistent 默认持久化
-                    DeliveryMode = 2
-                };
+            //public string Type { get; set; } = "";
+
+            public bool? Durable { get; set; }
+
+            public bool? AutoDelete { get; set; }
+
+            public IDictionary<string, object> Arguments { get; set; }
+
+            public string RoutingKey { get; set; }
+
         }
     }
 }

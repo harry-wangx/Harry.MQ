@@ -14,23 +14,27 @@ namespace Microsoft.Extensions.DependencyInjection
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            services.TryAddSingleton(_ =>
+            services.AddMQ().AddSingleton(_ =>
             {
-                IMQFactory factory = new MQFactory();
+
+                IMQFactory factory = _.GetService<IMQFactory>();
+                if (factory == null)
+                    factory = new MQFactory();
+
                 factoryAction?.Invoke(factory);
                 return factory;
             });
             return services;
         }
 
-        public static IMQFactory AddMQ(this IServiceCollection services)
+        public static IServiceCollection AddMQ(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            IMQFactory factory = new MQFactory();
-            services.TryAddSingleton(factory);
-            return factory;
+            services.TryAddSingleton<IMQFactory, MQFactory>();
+
+            return services;
         }
     }
 }

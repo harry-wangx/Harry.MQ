@@ -6,14 +6,14 @@ namespace Harry.MQ.Test
 {
     public static class RabbitMQTestHelper
     {
-        public static IProducer GetProducer(string channelName)
+        public static IProducer GetProducer(string channelName, bool isBroadcast=false)
         {
-            return GetMQFactory().CreateProducer(channelName);
+            return GetMQFactory().CreateProducer(channelName, isBroadcast);
         }
 
-        public static IConsumer GetConsumer(string channelName)
+        public static IConsumer GetConsumer(string channelName, bool isBroadcast=false)
         {
-            return GetMQFactory().CreateConsumer(channelName);
+            return GetMQFactory().CreateConsumer(channelName, isBroadcast);
         }
 
         public static IMQFactory GetMQFactory()

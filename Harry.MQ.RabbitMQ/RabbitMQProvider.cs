@@ -25,7 +25,7 @@ namespace Harry.MQ.RabbitMQ
         /// </summary>
         /// <param name="channelName"></param>
         /// <returns></returns>
-        public IProducer CreateProducer(string channelName)
+        public IProducer CreateProducer(string channelName, bool isBroadcast)
         {
             if (_disposed)
             {
@@ -35,11 +35,11 @@ namespace Harry.MQ.RabbitMQ
             EnsureConnectionFactory();
             EnsureConnection();
 
-            var channel = GetAndInitChannel(channelName);
+            var channel = GetAndInitChannel(channelName, isBroadcast);
 
             if (channel == null)
                 return null;
-            return new RabbitMQProducer(channel, channelName, _options);
+            return new RabbitMQProducer(channel, channelName, _options, isBroadcast);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Harry.MQ.RabbitMQ
         /// </summary>
         /// <param name="channelName"></param>
         /// <returns></returns>
-        public IConsumer CreateConsumer(string channelName)
+        public IConsumer CreateConsumer(string channelName, bool isBroadcast)
         {
             if (_disposed)
             {
@@ -57,11 +57,11 @@ namespace Harry.MQ.RabbitMQ
             EnsureConnectionFactory();
             EnsureConnection();
 
-            var channel = GetAndInitChannel(channelName);
+            var channel = GetAndInitChannel(channelName, isBroadcast);
 
             if (channel == null)
                 return null;
-            return new RabbitMQConsumer(channel, channelName, _options);
+            return new RabbitMQConsumer(channel, channelName, _options, isBroadcast);
 
         }
 
@@ -111,24 +111,39 @@ namespace Harry.MQ.RabbitMQ
             }
         }
 
-        public virtual IModel GetAndInitChannel(string channelName)
+        public virtual IModel GetAndInitChannel(string channelName, bool isBroadcast)
         {
-            if (string.IsNullOrWhiteSpace(channelName))
-            {
-                channelName = MQDefaults.DefaultChannelName;
-            }
-
             var canCreate = _options?.Events?.ChannelFilter?.Invoke(channelName);
             if (canCreate == false)
                 return null;
 
             var channel = connection.CreateModel();
 
-            channel.QueueDeclare(queue: channelName,
-                     durable: _options.QueueDeclare.Durable,
-                     exclusive: _options.QueueDeclare.Exclusive,
-                     autoDelete: _options.QueueDeclare.AutoDelete,
-                     arguments: _options.QueueDeclare.Arguments);
+
+            //定义Exchange
+            channel.ExchangeDeclare(
+                channelName,
+                isBroadcast ? "fanout" : "direct",
+                durable: _options?.Exchange?.Durable == null ? (!isBroadcast) : _options.Exchange.Durable.Value, //改成默认保存的
+                autoDelete: _options?.Exchange?.AutoDelete == null ? isBroadcast : _options.Exchange.AutoDelete.Value,
+                arguments: _options?.Exchange?.Arguments);
+
+
+            //if (isBroadcast)
+            //{
+
+            //}
+            //else
+            //{
+            //    //如果Queue不存在，定义Queue;如果已存在，则忽略此操作。此操作是幂等的。
+            //    channel.QueueDeclare(queue: channelName,
+            //             durable: _options.QueueDeclare.Durable,
+            //             exclusive: _options.QueueDeclare.Exclusive,
+            //             autoDelete: _options.QueueDeclare.AutoDelete,
+            //             arguments: _options.QueueDeclare.Arguments);
+            //}
+
+
             return channel;
         }
 

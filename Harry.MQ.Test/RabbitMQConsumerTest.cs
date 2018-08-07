@@ -23,7 +23,7 @@ namespace Harry.MQ.Test
             var channel = RabbitMQTestHelper.GetConsumer("hello");
             channel.Received += Channel_Received;
             channel.Begin(false);
-            Thread.Sleep(300);
+            Thread.Sleep(300*10);
             Assert.True(true);
         }
 
