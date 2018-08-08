@@ -78,7 +78,7 @@ namespace Harry.MQ.RabbitMQ
                     return;
                 }
                 factory = new ConnectionFactory() { HostName = "localhost" };
-                var func = _options?.Events?.OnCreateConnectionFactory;
+                var func = _options.Events?.OnCreateConnectionFactory;
                 if (func != null)
                 {
                     factory = func.Invoke((ConnectionFactory)factory);
@@ -102,7 +102,7 @@ namespace Harry.MQ.RabbitMQ
                 connection?.Dispose();
                 connection = null;
 
-                connection = _options?.Events?.OnCreateConnection?.Invoke(factory);
+                connection = _options.Events?.OnCreateConnection?.Invoke(factory);
 
                 if (connection == null)
                 {
@@ -113,7 +113,11 @@ namespace Harry.MQ.RabbitMQ
 
         public virtual IModel GetAndInitChannel(string channelName, bool isBroadcast)
         {
-            var canCreate = _options?.Events?.ChannelFilter?.Invoke(channelName);
+            //使用channelName作为exchange的名称
+            string exchange = channelName;
+
+            var canCreate = _options.Events?.ChannelFilter?.Invoke(channelName);
+            //如果返回null或true,生成model；否则返回null
             if (canCreate == false)
                 return null;
 
@@ -122,27 +126,13 @@ namespace Harry.MQ.RabbitMQ
 
             //定义Exchange
             channel.ExchangeDeclare(
-                channelName,
+                exchange,
                 isBroadcast ? "fanout" : "direct",
-                durable: _options?.Exchange?.Durable == null ? (!isBroadcast) : _options.Exchange.Durable.Value, //改成默认保存的
-                autoDelete: _options?.Exchange?.AutoDelete == null ? isBroadcast : _options.Exchange.AutoDelete.Value,
-                arguments: _options?.Exchange?.Arguments);
-
-
-            //if (isBroadcast)
-            //{
-
-            //}
-            //else
-            //{
-            //    //如果Queue不存在，定义Queue;如果已存在，则忽略此操作。此操作是幂等的。
-            //    channel.QueueDeclare(queue: channelName,
-            //             durable: _options.QueueDeclare.Durable,
-            //             exclusive: _options.QueueDeclare.Exclusive,
-            //             autoDelete: _options.QueueDeclare.AutoDelete,
-            //             arguments: _options.QueueDeclare.Arguments);
-            //}
-
+                //广播模式下默认不持久化
+                durable: _options.Exchange?.Durable == null ? (!isBroadcast) : _options.Exchange.Durable.Value, 
+                //广播模式下默认自动删除
+                autoDelete: _options.Exchange?.AutoDelete == null ? isBroadcast : _options.Exchange.AutoDelete.Value,
+                arguments: _options.Exchange?.Arguments);
 
             return channel;
         }

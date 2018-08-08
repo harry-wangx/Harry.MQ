@@ -23,7 +23,7 @@ namespace Harry.MQ.Test
         [Fact]
         public void PublishForSubscribe()
         {
-            var producer = RabbitMQTestHelper.GetProducer("hello.subscribe",true);
+            var producer = RabbitMQTestHelper.GetProducer("hello.subscribe", true);
             producer.Publish("hello:" + DateTime.Now.ToString());
 
             Assert.True(true);
@@ -34,7 +34,8 @@ namespace Harry.MQ.Test
         {
             var producer = RabbitMQTestHelper.GetProducer("send.email");
 
-            producer.Publish("{'subject':'测试邮件','body':'邮件内容" + DateTime.Now.ToString() + "','address':'harry_w@foxmail.com'}");
+            //for (int i = 0; i < 5; i++)
+                producer.Publish("{'subject':'测试邮件','body':'邮件内容" + DateTime.Now.ToString() + "','address':'harry_w@foxmail.com'}");
 
             Assert.True(true);
         }

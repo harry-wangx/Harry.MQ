@@ -11,7 +11,7 @@ namespace Harry.MQ.RabbitMQ
         private readonly IModel channel;
         private volatile bool _disposed;
         private readonly EventingBasicConsumer consumer;
-        private readonly RabbitMQOptions options;
+        private readonly RabbitMQOptions _options;
         private string queueName;
         private readonly bool isBroadcast;
 
@@ -20,33 +20,37 @@ namespace Harry.MQ.RabbitMQ
         public RabbitMQConsumer(IModel channel, string channelName, RabbitMQOptions options, bool isBroadcast)
         {
             this.channel = channel;
-            this.options = options;
-            //this.channelName = channelName;
+            this._options = options;
             this.isBroadcast = isBroadcast;
 
             consumer = new EventingBasicConsumer(channel);
             consumer.Received += OnReceived;
 
-
+            //如果Queue不存在，定义Queue;如果已存在，则忽略此操作。此操作是幂等的。
             if (isBroadcast)
             {
                 queueName = channel.QueueDeclare(queue: "",
-                         durable: false,
-                         exclusive: true,
-                         autoDelete: true,
-                         arguments: options.QueueDeclare.Arguments).QueueName;
+                         //广播模式下默认不持久化
+                         durable: _options.QueueDeclare?.Durable == null ? false : _options.QueueDeclare.Durable.Value,
+                         //广播模式下默认使用专属queue
+                         exclusive: _options.QueueDeclare?.Exclusive == null ? true : _options.QueueDeclare.Exclusive.Value,
+                         //广播模式下默认自动删除queue
+                         autoDelete: _options.QueueDeclare?.AutoDelete == null ? true : _options.QueueDeclare.AutoDelete.Value,
+                         arguments: _options.QueueDeclare.Arguments).QueueName;
             }
             else
             {
-                //如果Queue不存在，定义Queue;如果已存在，则忽略此操作。此操作是幂等的。
                 queueName = channel.QueueDeclare(queue: channelName,
-                         durable: options.QueueDeclare.Durable,
-                         exclusive: options.QueueDeclare.Exclusive,
-                         autoDelete: options.QueueDeclare.AutoDelete,
-                         arguments: options.QueueDeclare.Arguments).QueueName;
+                         //非广播模式下默认持久化
+                         durable: _options.QueueDeclare?.Durable == null ? true : _options.QueueDeclare.Durable.Value,
+                         //非广播模式下默认不使用专属queue
+                         exclusive: _options.QueueDeclare?.Exclusive == null ? false : _options.QueueDeclare.Exclusive.Value,
+                         //非广播模式下默认不自动删除queue
+                         autoDelete: _options.QueueDeclare?.AutoDelete == null ? false : _options.QueueDeclare.AutoDelete.Value,
+                         arguments: _options.QueueDeclare.Arguments).QueueName;
             }
 
-            var routingKey = options?.Exchange?.RoutingKey ?? (isBroadcast ? "" : queueName);
+            var routingKey = _options.Exchange?.RoutingKey ?? (isBroadcast ? "" : queueName);
 
             channel.QueueBind(queueName, channelName, routingKey);
         }

@@ -1,4 +1,8 @@
-﻿using RabbitMQ.Client;
+﻿/*
+ 1，配置项的原则是，具体配置的值类型统一使用可空值类型
+ */
+
+using RabbitMQ.Client;
 using RabbitMQ.Client.Framing;
 using System;
 using System.Collections.Generic;
@@ -19,17 +23,17 @@ namespace Harry.MQ.RabbitMQ
             /// <summary>
             /// 是否持久化
             /// </summary>
-            public bool Durable { get; set; } = true;
+            public bool? Durable { get; set; }
 
             /// <summary>
             /// 是否是排它性队列
             /// </summary>
-            public bool Exclusive { get; set; }
+            public bool? Exclusive { get; set; }
 
             /// <summary>
             /// 当没有任何消费者使用时，是否自动删除该队列
             /// </summary>
-            public bool AutoDelete { get; set; }
+            public bool? AutoDelete { get; set; }
 
             public Dictionary<string, object> Arguments { get; set; }
         }
@@ -39,7 +43,7 @@ namespace Harry.MQ.RabbitMQ
             /// <summary>
             /// 创建ConnectionFactory 时会尝试调用此函数
             /// </summary>
-            public Func<ConnectionFactory, IConnectionFactory> OnCreateConnectionFactory { get; set; } = _ => _;
+            public Func<ConnectionFactory, IConnectionFactory> OnCreateConnectionFactory { get; set; } /*= _ => _;*/
 
             /// <summary>
             /// 创建IConnection的时候会尝试调用此函数
@@ -49,7 +53,7 @@ namespace Harry.MQ.RabbitMQ
             /// <summary>
             /// 通道过滤器，是否支持当前通道名称,如果支持，返回true
             /// </summary>
-            public Func<string, bool> ChannelFilter { get; set; } = _ => true;
+            public Func<string, bool> ChannelFilter { get; set; } /*= _ => true;*/
 
             /// <summary>
             /// 设置通道属性
