@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Harry.MQ
 {
+    /// <summary>
+    /// 消息接收参数
+    /// </summary>
     public class ReceiveArgs : EventArgs
     {
         public ReceiveArgs(object oSender, object oArgs, Message message)
@@ -17,8 +20,14 @@ namespace Harry.MQ
         /// </summary>
         public Message Message { get; private set; }
 
+        /// <summary>
+        /// 源发送者
+        /// </summary>
         public object OriginSender { get; private set; }
 
+        /// <summary>
+        /// 源参数
+        /// </summary>
         public object OriginArgs { get; private set; }
     }
 }

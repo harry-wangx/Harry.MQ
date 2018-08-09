@@ -21,9 +21,10 @@ namespace Harry.MQ.RabbitMQ
         }
 
         /// <summary>
-        /// 创建生产者
+        /// 创建发布者
         /// </summary>
-        /// <param name="channelName"></param>
+        /// <param name="channelName">通道名称</param>
+        /// <param name="isBroadcast">是否广播模式</param>
         /// <returns></returns>
         public IProducer CreateProducer(string channelName, bool isBroadcast)
         {
@@ -43,9 +44,10 @@ namespace Harry.MQ.RabbitMQ
         }
 
         /// <summary>
-        /// 创建消费者
+        /// 创建消息消费者
         /// </summary>
-        /// <param name="channelName"></param>
+        /// <param name="channelName">通道名称</param>
+        /// <param name="isBroadcast">是否广播模式</param>
         /// <returns></returns>
         public IConsumer CreateConsumer(string channelName, bool isBroadcast)
         {
@@ -65,6 +67,9 @@ namespace Harry.MQ.RabbitMQ
 
         }
 
+        /// <summary>
+        /// 配置ConnectionFactory
+        /// </summary>
         private void EnsureConnectionFactory()
         {
             if (factory != null)
@@ -86,6 +91,9 @@ namespace Harry.MQ.RabbitMQ
             }
         }
 
+        /// <summary>
+        /// 配置Connection
+        /// </summary>
         private void EnsureConnection()
         {
             if (connection != null && connection.IsOpen)
@@ -111,6 +119,12 @@ namespace Harry.MQ.RabbitMQ
             }
         }
 
+        /// <summary>
+        /// 生成IModel
+        /// </summary>
+        /// <param name="channelName"></param>
+        /// <param name="isBroadcast"></param>
+        /// <returns></returns>
         public virtual IModel GetAndInitChannel(string channelName, bool isBroadcast)
         {
             //使用channelName作为exchange的名称

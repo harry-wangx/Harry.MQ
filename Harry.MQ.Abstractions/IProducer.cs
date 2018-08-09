@@ -14,5 +14,16 @@ namespace Harry.MQ
         /// </summary>
         /// <param name="msg"></param>
         void Publish(Message msg);
+
+        /// <summary>
+        /// 是否广播模式
+        /// </summary>
+        bool IsBroadcast { get; }
+
+        /// <summary>
+        /// 是否已消毁
+        /// </summary>
+        /// <returns></returns>
+        bool CheckDisposed();
     }
 }

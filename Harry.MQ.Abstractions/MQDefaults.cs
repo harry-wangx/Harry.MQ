@@ -8,6 +8,6 @@ namespace Harry.MQ
     {
         public static readonly string DefaultChannelName = "default";
 
-        public static readonly Encoding DefaultEncoding = Encoding.UTF8;
+        //public static readonly Encoding DefaultEncoding = Encoding.UTF8;
     }
 }

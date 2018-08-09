@@ -12,14 +12,28 @@ namespace Harry.MQ.RabbitMQ
 {
     public class RabbitMQOptions
     {
+        /// <summary>
+        /// 事件
+        /// </summary>
         public EventsOptions Events { get; set; } = new EventsOptions();
 
+        /// <summary>
+        /// 队列选项
+        /// </summary>
         public QueueDeclareOptions QueueDeclare { get; set; } = new QueueDeclareOptions();
 
+        /// <summary>
+        /// Exchange选项
+        /// </summary>
         public ExchangeOptions Exchange { get; set; } = new ExchangeOptions();
 
         public class QueueDeclareOptions
         {
+            /// <summary>
+            /// 队列名称
+            /// </summary>
+            public string Name { get; set; }
+
             /// <summary>
             /// 是否持久化
             /// </summary>
@@ -64,16 +78,23 @@ namespace Harry.MQ.RabbitMQ
 
         public class ExchangeOptions
         {
-            ///// <summary>
-            ///// Exchange名称
-            ///// </summary>
-            //public string Name { get; set; } = "";
+            /// <summary>
+            /// Exchange名称
+            /// </summary>
+            public string Name { get; set; }
 
             //public string Type { get; set; } = "";
 
+            /// <summary>
+            /// 是否持久化
+            /// </summary>
             public bool? Durable { get; set; }
 
+            /// <summary>
+            /// 是否自动删除
+            /// </summary>
             public bool? AutoDelete { get; set; }
+
 
             public IDictionary<string, object> Arguments { get; set; }
 

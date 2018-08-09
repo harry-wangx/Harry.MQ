@@ -4,48 +4,67 @@ using System.Text;
 
 namespace Harry.MQ
 {
+    /// <summary>
+    /// MQ工厂类
+    /// </summary>
     public class MQFactory : IMQFactory
     {
         private readonly List<IMQProvider> _lstProviders = new List<IMQProvider>();
+        private readonly Dictionary<string, IProducer> _dicProducer = new Dictionary<string, IProducer>(StringComparer.Ordinal);
+        private readonly Dictionary<string, IConsumer> _dicConsumer = new Dictionary<string, IConsumer>(StringComparer.Ordinal);
         private volatile bool _disposed;
 
-        #region 创建消息发布者
+        private readonly object _sync = new object();
 
-        //public IProducer CreateProducer(string channelName)
-        //{
-        //    return this.CreateProducer(channelName, false);
-        //}
+        public MQFactory() { }
 
+        public MQFactory(IEnumerable<IMQProvider> providers)
+        {
+            _lstProviders.AddRange(providers);
+        }
+
+        /// <summary>
+        /// 创建发布者
+        /// </summary>
+        /// <param name="channelName">通道名称</param>
+        /// <param name="isBroadcast">是否广播模式</param>
+        /// <returns></returns>
         public IProducer CreateProducer(string channelName, bool isBroadcast)
         {
             if (CheckDisposed())
             {
                 throw new ObjectDisposedException(nameof(MQFactory));
             }
-
             channelName = channelName?.Trim();
 
             if (string.IsNullOrEmpty(channelName))
                 throw new ArgumentNullException(nameof(channelName));
 
-            IProducer result = null;
-            foreach (var provider in _lstProviders)
+            lock (_sync)
             {
-                result = provider.CreateProducer(channelName,isBroadcast);
-                if (result != null)
-                    return result;
+                if (!_dicProducer.TryGetValue(channelName, out var result) || result.CheckDisposed())
+                {
+                    result = null;
+                    foreach (var provider in _lstProviders)
+                    {
+                        result = provider.CreateProducer(channelName, isBroadcast);
+                        if (result != null)
+                        {
+                            _dicProducer[channelName] = result;
+                            return result;
+                        }
+                    }
+                }
+                return result;
             }
-            return null;
         }
 
-        #endregion
-
-        #region 创建消息消费者
-        //public IConsumer CreateConsumer(string channelName)
-        //{
-        //    return this.CreateConsumer(channelName, false);
-        //}
-
+        /// <summary>
+        /// 创建消息消费者
+        /// </summary>
+        /// <param name="channelName">通道名称</param>
+        /// <param name="isBroadcast">是否广播模式</param>
+        /// <returns></returns>
         public IConsumer CreateConsumer(string channelName, bool isBroadcast)
         {
             if (CheckDisposed())
@@ -58,18 +77,42 @@ namespace Harry.MQ
             if (string.IsNullOrEmpty(channelName))
                 throw new ArgumentNullException(nameof(channelName));
 
+            //lock (_sync)
+            //{
+            //    if (!_dicConsumer.TryGetValue(channelName, out var result) || result.CheckDisposed())
+            //    {
+            //        result = null;
+            //        foreach (var provider in _lstProviders)
+            //        {
+            //            result = provider.CreateConsumer(channelName, isBroadcast);
+            //            if (result != null)
+            //            {
+            //                _dicConsumer[channelName] = result;
+            //                return result;
+            //            }
+            //        }
+            //    }
+            //    return result;
+            //}
+
+            //消费者不使用缓存，想不出使用缓存的理由
             IConsumer result = null;
             foreach (var provider in _lstProviders)
             {
                 result = provider.CreateConsumer(channelName, isBroadcast);
                 if (result != null)
-                    return result;
+                {
+                    break;
+                }
             }
-            return null;
+            return result;
         }
 
-        #endregion
-
+        /// <summary>
+        /// 添加 <see cref="IMQProvider">IMQProvider</see>
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
         public IMQFactory AddProvider(IMQProvider provider)
         {
             if (CheckDisposed())
@@ -79,8 +122,11 @@ namespace Harry.MQ
 
             if (provider == null)
                 throw new ArgumentNullException(nameof(provider));
-            _lstProviders.Add(provider);
 
+            lock (_sync)
+            {
+                _lstProviders.Add(provider);
+            }
             return this;
         }
 
