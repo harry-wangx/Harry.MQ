@@ -42,6 +42,33 @@ namespace Harry.MQ
 
             lock (_sync)
             {
+                IProducer result = null;
+                foreach (var provider in _lstProviders)
+                {
+                    result = provider.CreateProducer(channelName, isBroadcast);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        public IProducer GetOrCreateProducer(string channelName, bool isBroadcast)
+        {
+            if (CheckDisposed())
+            {
+                throw new ObjectDisposedException(nameof(MQFactory));
+            }
+            channelName = channelName?.Trim();
+
+            if (string.IsNullOrEmpty(channelName))
+                throw new ArgumentNullException(nameof(channelName));
+
+            lock (_sync)
+            {
                 if (!_dicProducer.TryGetValue(channelName, out var result) || result.CheckDisposed())
                 {
                     result = null;
@@ -152,6 +179,5 @@ namespace Harry.MQ
             }
 
         }
-
     }
 }

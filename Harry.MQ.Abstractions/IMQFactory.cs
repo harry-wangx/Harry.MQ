@@ -17,6 +17,8 @@ namespace Harry.MQ
         /// <returns></returns>
         IProducer CreateProducer(string channelName, bool isBroadcast);
 
+        IProducer GetOrCreateProducer(string channelName, bool isBroadcast);
+
         /// <summary>
         /// 创建消息消费者
         /// </summary>
